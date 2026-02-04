@@ -1,11 +1,18 @@
 import { useState } from "react";
 import "../styles/TaskInput.css";
+import { adjustColor, getContrastColor } from "../utils/colorUtils";
 
 interface TaskInputProps {
   onAdd: (task: string) => void;
+  fontColor: string;
+  inputBgColor: string;
 }
 
-export default function TaskInput({ onAdd }: TaskInputProps) {
+export default function TaskInput({
+  onAdd,
+  fontColor,
+  inputBgColor,
+}: TaskInputProps) {
   const [text, setText] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -15,15 +22,31 @@ export default function TaskInput({ onAdd }: TaskInputProps) {
     setText("");
   };
 
+  const buttonColor = getContrastColor(fontColor);
+  const placeholderColor = adjustColor(
+    fontColor,
+    buttonColor == "#000000" ? -60 : 60,
+  );
+
   return (
-    <form onSubmit={handleSubmit} className="task-input">
+    <form
+      onSubmit={handleSubmit}
+      className="task-input"
+      style={{ "--placeholder-color": placeholderColor } as React.CSSProperties}
+    >
       <input
         type="text"
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Add a task..."
+        style={{ color: fontColor, backgroundColor: inputBgColor }}
       />
-      <button type="submit">Add</button>
+      <button
+        type="submit"
+        style={{ color: fontColor, backgroundColor: buttonColor }}
+      >
+        Add
+      </button>
     </form>
   );
 }

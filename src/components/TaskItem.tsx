@@ -5,6 +5,7 @@ interface TaskItemProps {
   completed: boolean;
   onToggle: () => void;
   onDelete: () => void;
+  inputBgColor: string;
 }
 
 export default function TaskItem({
@@ -12,9 +13,13 @@ export default function TaskItem({
   completed,
   onToggle,
   onDelete,
+  inputBgColor,
 }: TaskItemProps) {
   return (
-    <li className={`task-item ${completed ? "completed" : ""}`}>
+    <li
+      className={`task-item ${completed ? "completed" : ""}`}
+      style={{ backgroundColor: inputBgColor }}
+    >
       <span onClick={onToggle}>{task}</span>
       <button onClick={onDelete}>✕</button>
     </li>

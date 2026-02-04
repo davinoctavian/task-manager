@@ -10,6 +10,9 @@
   border: 1px solid #aaa;
   border-radius: 4px;
 }
+.task-input input::placeholder {
+  color: var(--placeholder-color);
+}
 
 .task-input button {
   padding: 8px 12px;
