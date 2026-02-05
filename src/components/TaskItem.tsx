@@ -21,7 +21,12 @@ export default function TaskItem({
       style={{ backgroundColor: inputBgColor }}
     >
       <span onClick={onToggle}>{task}</span>
-      <button onClick={onDelete}>✕</button>
+      <img
+        className="delete"
+        src="/icon-delete.png"
+        alt="Delete"
+        onClick={onDelete}
+      />
     </li>
   );
 }

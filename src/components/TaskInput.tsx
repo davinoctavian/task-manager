@@ -32,18 +32,31 @@ export default function TaskInput({
     <form
       onSubmit={handleSubmit}
       className="task-input"
-      style={{ "--placeholder-color": placeholderColor } as React.CSSProperties}
+      style={
+        {
+          "--placeholder-color": placeholderColor,
+          "--focus-color": fontColor,
+        } as React.CSSProperties
+      }
     >
       <input
         type="text"
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Add a task..."
-        style={{ color: fontColor, backgroundColor: inputBgColor }}
+        style={{
+          color: fontColor,
+          backgroundColor: inputBgColor,
+          borderColor: fontColor,
+        }}
       />
       <button
         type="submit"
-        style={{ color: fontColor, backgroundColor: buttonColor }}
+        style={{
+          color: fontColor,
+          backgroundColor: buttonColor,
+          borderColor: fontColor,
+        }}
       >
         Add
       </button>

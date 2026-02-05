@@ -2,6 +2,8 @@ import { useLocalStorage } from "./hooks/useLocalStorage";
 import TaskInput from "./components/TaskInput";
 import TaskList from "./components/TaskList";
 import "./styles/App.css";
+import { useState } from "react";
+import Popup from "./utils/Popup";
 
 interface Task {
   id: number;
@@ -29,6 +31,9 @@ export default function App() {
     "customSettings",
     defaultSettings,
   );
+  const [title, setTitle] = useLocalStorage<string>("title", "Task Manager");
+  const [draftTitle, setDraftTitle] = useState(title);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
 
   const addTask = (text: string) => {
     setTasks([...tasks, { id: Date.now(), text, completed: false }]);
@@ -44,13 +49,31 @@ export default function App() {
     setTasks(tasks.filter((t) => t.id !== id));
   };
 
+  const openPopupTitle = () => {
+    setDraftTitle(title);
+    setIsEditingTitle(true);
+  };
+
+  const saveTitle = () => {
+    setTitle(draftTitle);
+    setIsEditingTitle(false);
+  };
+
   return (
     <div className="app" style={{ backgroundColor: customSettings.bgColor }}>
       <div
         className="content"
         style={{ backgroundColor: customSettings.bgTaskColor }}
       >
-        <h1 style={{ color: customSettings.fontColor }}>Task Manager</h1>
+        <h1 style={{ color: customSettings.fontColor }}>
+          {title}
+          <img
+            className="edit-icon"
+            src="/icon-edit.png"
+            alt="edit"
+            onClick={openPopupTitle}
+          ></img>
+        </h1>
         <TaskInput
           onAdd={addTask}
           fontColor={customSettings.fontColor}
@@ -121,6 +144,19 @@ export default function App() {
           </div>
         </div>
       </div>
+      {isEditingTitle && (
+        <Popup isOpen={isEditingTitle} onClose={() => setIsEditingTitle(false)}>
+          <h2>Edit Title</h2>
+          <div className="popup-body">
+            <input
+              type="text"
+              value={draftTitle}
+              onChange={(e) => setDraftTitle(e.target.value)}
+            />
+            <button onClick={() => saveTitle()}>Save</button>
+          </div>
+        </Popup>
+      )}
     </div>
   );
 }
