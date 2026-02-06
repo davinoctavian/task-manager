@@ -3,16 +3,18 @@ import "../styles/TaskItem.css";
 interface TaskItemProps {
   task: string;
   completed: boolean;
-  onToggle: () => void;
+  onCheck: () => void;
   onDelete: () => void;
+  onEdit: () => void;
   inputBgColor: string;
 }
 
 export default function TaskItem({
   task,
   completed,
-  onToggle,
+  onCheck,
   onDelete,
+  onEdit,
   inputBgColor,
 }: TaskItemProps) {
   return (
@@ -20,7 +22,10 @@ export default function TaskItem({
       className={`task-item ${completed ? "completed" : ""}`}
       style={{ backgroundColor: inputBgColor }}
     >
-      <span onClick={onToggle}>{task}</span>
+      <div className="item-content">
+        <input type="checkbox" checked={completed} onChange={onCheck} />
+        <span onClick={onEdit}>{task}</span>
+      </div>
       <img
         className="delete"
         src="/icon-delete.png"

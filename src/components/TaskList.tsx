@@ -9,16 +9,18 @@ interface Task {
 
 interface TaskListProps {
   tasks: Task[];
-  onToggle: (id: number) => void;
+  onCheck: (id: number) => void;
   onDelete: (id: number) => void;
+  onEdit: (id: number) => void;
   fontColor: string;
   inputBgColor: string;
 }
 
 export default function TaskList({
   tasks,
-  onToggle,
+  onCheck,
   onDelete,
+  onEdit,
   fontColor,
   inputBgColor,
 }: TaskListProps) {
@@ -29,7 +31,8 @@ export default function TaskList({
           key={t.id}
           task={t.text}
           completed={t.completed}
-          onToggle={() => onToggle(t.id)}
+          onCheck={() => onCheck(t.id)}
+          onEdit={() => onEdit(t.id)}
           onDelete={() => onDelete(t.id)}
           inputBgColor={inputBgColor}
         />

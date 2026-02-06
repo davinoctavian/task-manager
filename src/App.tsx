@@ -34,15 +34,32 @@ export default function App() {
   const [title, setTitle] = useLocalStorage<string>("title", "Task Manager");
   const [draftTitle, setDraftTitle] = useState(title);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [isEditingTask, setIsEditingTask] = useState<number | null>(null);
+  const [draftTaskText, setDraftTaskText] = useState("");
 
   const addTask = (text: string) => {
     setTasks([...tasks, { id: Date.now(), text, completed: false }]);
   };
 
-  const toggleTask = (id: number) => {
+  const checkTask = (id: number) => {
     setTasks(
       tasks.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t)),
     );
+  };
+
+  const editTask = (id: number) => {
+    setIsEditingTask(id);
+    setDraftTaskText(tasks.find((t) => t.id === id)?.text || "");
+  };
+
+  const saveTask = (id: number) => {
+    if (isEditingTask !== null) {
+      setTasks(
+        tasks.map((t) => (t.id === id ? { ...t, text: draftTaskText } : t)),
+      );
+      setIsEditingTask(null);
+      setDraftTaskText("");
+    }
   };
 
   const deleteTask = (id: number) => {
@@ -81,8 +98,9 @@ export default function App() {
         />
         <TaskList
           tasks={tasks}
-          onToggle={toggleTask}
+          onCheck={checkTask}
           onDelete={deleteTask}
+          onEdit={editTask}
           fontColor={customSettings.fontColor}
           inputBgColor={customSettings.inputBgColor}
         />
@@ -154,6 +172,22 @@ export default function App() {
               onChange={(e) => setDraftTitle(e.target.value)}
             />
             <button onClick={() => saveTitle()}>Save</button>
+          </div>
+        </Popup>
+      )}
+      {isEditingTask !== null && (
+        <Popup
+          isOpen={isEditingTask !== null}
+          onClose={() => setIsEditingTask(null)}
+        >
+          <h2>Edit Task</h2>
+          <div className="popup-body">
+            <input
+              type="text"
+              value={draftTaskText}
+              onChange={(e) => setDraftTaskText(e.target.value)}
+            />
+            <button onClick={() => saveTask(isEditingTask)}>Save</button>
           </div>
         </Popup>
       )}
