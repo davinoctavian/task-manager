@@ -105,11 +105,16 @@ export default function App() {
           inputBgColor={customSettings.inputBgColor}
         />
       </div>
-      <div className="content-custom">
-        <h2>Custom Styled Section</h2>
+      <div
+        className="content-custom"
+        style={{ backgroundColor: customSettings.bgTaskColor }}
+      >
+        <h2 style={{ color: customSettings.fontColor }}>
+          Custom Styled Section
+        </h2>
         <div className="custom-setting">
           <div className="d-flex align-center justify-between gap-10 pb-10">
-            <label>Bg Color</label>
+            <label style={{ color: customSettings.fontColor }}>Bg Color</label>
             <input
               type="color"
               value={customSettings.bgColor}
@@ -122,7 +127,9 @@ export default function App() {
             />
           </div>
           <div className="d-flex align-center justify-between gap-10 pb-10">
-            <label>Bg Task Color</label>
+            <label style={{ color: customSettings.fontColor }}>
+              Bg Task Color
+            </label>
             <input
               type="color"
               value={customSettings.bgTaskColor}
@@ -135,7 +142,9 @@ export default function App() {
             />
           </div>
           <div className="d-flex align-center justify-between gap-10 pb-10">
-            <label>Font Color</label>
+            <label style={{ color: customSettings.fontColor }}>
+              Font Color
+            </label>
             <input
               type="color"
               value={customSettings.fontColor}
@@ -148,7 +157,9 @@ export default function App() {
             />
           </div>
           <div className="d-flex align-center justify-between gap-10 pb-10">
-            <label>Input Bg Color</label>
+            <label style={{ color: customSettings.fontColor }}>
+              Input Bg Color
+            </label>
             <input
               type="color"
               value={customSettings.inputBgColor}

@@ -20,7 +20,7 @@ export default defineConfig({
         description: "Simple offline Task Manager built with React",
         theme_color: "#ffffff",
         background_color: "#f9f9f9",
-        display: "standalone",
+        display: "fullscreen",
         start_url: "/",
         icons: [
           {
