@@ -15,7 +15,7 @@ export default function TaskInput({
 }: TaskInputProps) {
   const [text, setText] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.SubmitEvent) => {
     e.preventDefault();
     if (!text.trim()) return;
     onAdd(text.trim());

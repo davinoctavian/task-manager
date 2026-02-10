@@ -1,14 +1,19 @@
 import { useLocalStorage } from "./hooks/useLocalStorage";
-import TaskInput from "./components/TaskInput";
-import TaskList from "./components/TaskList";
+import TaskContent from "./components/TaskContent";
 import "./styles/App.css";
 import { useState } from "react";
 import Popup from "./utils/Popup";
+import { getContrastColor } from "./utils/colorUtils";
 
 interface Task {
   id: number;
   text: string;
   completed: boolean;
+}
+
+interface TaskContent {
+  title: string;
+  tasks: Task[];
 }
 
 interface Settings {
@@ -26,150 +31,192 @@ const defaultSettings = {
 };
 
 export default function App() {
-  const [tasks, setTasks] = useLocalStorage<Task[]>("tasks", []);
+  const [taskContent, setTaskContent] = useLocalStorage<TaskContent[]>(
+    "taskContent",
+    [{ title: "Task Manager", tasks: [] }],
+  );
   const [customSettings, setCustomSettings] = useLocalStorage<Settings>(
     "customSettings",
     defaultSettings,
   );
-  const [title, setTitle] = useLocalStorage<string>("title", "Task Manager");
-  const [draftTitle, setDraftTitle] = useState(title);
+  const [draftTitle, setDraftTitle] = useState("");
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isEditingTask, setIsEditingTask] = useState<number | null>(null);
   const [draftTaskText, setDraftTaskText] = useState("");
+  const [editingTaskIndex, setEditingTaskIndex] = useState<number | null>(null);
 
-  const addTask = (text: string) => {
-    setTasks([...tasks, { id: Date.now(), text, completed: false }]);
+  const addTask = (text: string, index: number) => {
+    const newTaskContent = [...taskContent];
+    newTaskContent[index].tasks.push({
+      id: Date.now(),
+      text,
+      completed: false,
+    });
+    setTaskContent(newTaskContent);
   };
 
-  const checkTask = (id: number) => {
-    setTasks(
-      tasks.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t)),
+  const checkTask = (id: number, index: number) => {
+    const newTaskContent = [...taskContent];
+    const taskIndex = newTaskContent[index].tasks.findIndex((t) => t.id === id);
+    if (taskIndex !== -1) {
+      newTaskContent[index].tasks[taskIndex].completed =
+        !newTaskContent[index].tasks[taskIndex].completed;
+    }
+    setTaskContent(newTaskContent);
+  };
+
+  const editTask = (id: number, index: number) => {
+    setIsEditingTask(id);
+    setEditingTaskIndex(index);
+    setDraftTaskText(
+      taskContent[index].tasks.find((t) => t.id === id)?.text || "",
     );
   };
 
-  const editTask = (id: number) => {
-    setIsEditingTask(id);
-    setDraftTaskText(tasks.find((t) => t.id === id)?.text || "");
-  };
-
-  const saveTask = (id: number) => {
+  const saveTask = (id: number, index: number) => {
     if (isEditingTask !== null) {
-      setTasks(
-        tasks.map((t) => (t.id === id ? { ...t, text: draftTaskText } : t)),
+      const newTaskContent = [...taskContent];
+      const taskIndex = newTaskContent[index].tasks.findIndex(
+        (t) => t.id === id,
       );
+      if (taskIndex !== -1) {
+        newTaskContent[index].tasks[taskIndex].text = draftTaskText;
+      }
+      setTaskContent(newTaskContent);
       setIsEditingTask(null);
       setDraftTaskText("");
     }
   };
 
-  const deleteTask = (id: number) => {
-    setTasks(tasks.filter((t) => t.id !== id));
+  const deleteTask = (id: number, index: number) => {
+    setTaskContent((prev) => {
+      const newTaskContent = [...prev];
+      newTaskContent[index].tasks = newTaskContent[index].tasks.filter(
+        (t) => t.id !== id,
+      );
+      return newTaskContent;
+    });
   };
 
-  const openPopupTitle = () => {
-    setDraftTitle(title);
+  const openPopupTitle = (index: number) => {
+    setEditingTaskIndex(index);
+    setDraftTitle(taskContent[index].title);
     setIsEditingTitle(true);
   };
 
-  const saveTitle = () => {
-    setTitle(draftTitle);
+  const saveTitle = (index: number) => {
+    const newTaskContent = [...taskContent];
+    newTaskContent[index].title = draftTitle;
+    setTaskContent(newTaskContent);
     setIsEditingTitle(false);
   };
+  const buttonColor = getContrastColor(customSettings.fontColor);
 
   return (
     <div className="app" style={{ backgroundColor: customSettings.bgColor }}>
-      <div
-        className="content"
-        style={{ backgroundColor: customSettings.bgTaskColor }}
+      <button
+        className="add-button"
+        style={{
+          color: customSettings.fontColor,
+          backgroundColor: buttonColor,
+          borderColor: customSettings.fontColor,
+        }}
+        onClick={() => {
+          setTaskContent([...taskContent, { title: "Task List", tasks: [] }]);
+        }}
       >
-        <h1 style={{ color: customSettings.fontColor }}>
-          {title}
-          <img
-            className="edit-icon"
-            src="/icon-edit.png"
-            alt="edit"
-            onClick={openPopupTitle}
-          ></img>
-        </h1>
-        <TaskInput
-          onAdd={addTask}
-          fontColor={customSettings.fontColor}
-          inputBgColor={customSettings.inputBgColor}
-        />
-        <TaskList
-          tasks={tasks}
-          onCheck={checkTask}
-          onDelete={deleteTask}
-          onEdit={editTask}
-          fontColor={customSettings.fontColor}
-          inputBgColor={customSettings.inputBgColor}
-        />
-      </div>
-      <div
-        className="content-custom"
-        style={{ backgroundColor: customSettings.bgTaskColor }}
-      >
-        <h2 style={{ color: customSettings.fontColor }}>
-          Custom Styled Section
-        </h2>
-        <div className="custom-setting">
-          <div className="d-flex align-center justify-between gap-10 pb-10">
-            <label style={{ color: customSettings.fontColor }}>Bg Color</label>
-            <input
-              type="color"
-              value={customSettings.bgColor}
-              onChange={(e) =>
-                setCustomSettings({
-                  ...customSettings,
-                  bgColor: e.target.value,
-                })
-              }
-            />
-          </div>
-          <div className="d-flex align-center justify-between gap-10 pb-10">
-            <label style={{ color: customSettings.fontColor }}>
-              Bg Task Color
-            </label>
-            <input
-              type="color"
-              value={customSettings.bgTaskColor}
-              onChange={(e) =>
-                setCustomSettings({
-                  ...customSettings,
-                  bgTaskColor: e.target.value,
-                })
-              }
-            />
-          </div>
-          <div className="d-flex align-center justify-between gap-10 pb-10">
-            <label style={{ color: customSettings.fontColor }}>
-              Font Color
-            </label>
-            <input
-              type="color"
-              value={customSettings.fontColor}
-              onChange={(e) =>
-                setCustomSettings({
-                  ...customSettings,
-                  fontColor: e.target.value,
-                })
-              }
-            />
-          </div>
-          <div className="d-flex align-center justify-between gap-10 pb-10">
-            <label style={{ color: customSettings.fontColor }}>
-              Input Bg Color
-            </label>
-            <input
-              type="color"
-              value={customSettings.inputBgColor}
-              onChange={(e) =>
-                setCustomSettings({
-                  ...customSettings,
-                  inputBgColor: e.target.value,
-                })
-              }
-            />
+        New Task List
+      </button>
+      <div className="content-container">
+        <div className="tasklist-content">
+          {taskContent &&
+            taskContent.map((content, index) => (
+              <TaskContent
+                key={index}
+                openPopupTitle={() => openPopupTitle(index)}
+                addTask={(text) => addTask(text, index)}
+                checkTask={(id) => checkTask(id, index)}
+                editTask={(id) => editTask(id, index)}
+                deleteTask={(id) => deleteTask(id, index)}
+                deleteTaskContent={() => {
+                  const newTaskContent = [...taskContent];
+                  newTaskContent.splice(index, 1);
+                  setTaskContent(newTaskContent);
+                }}
+                customSettings={customSettings}
+                tasks={content.tasks}
+                title={content.title}
+              />
+            ))}
+        </div>
+        <div
+          className="content-custom"
+          style={{ backgroundColor: customSettings.bgTaskColor }}
+        >
+          <h2 style={{ color: customSettings.fontColor }}>
+            Custom Styled Section
+          </h2>
+          <div className="custom-setting">
+            <div className="d-flex align-center justify-between gap-10 pb-10">
+              <label style={{ color: customSettings.fontColor }}>
+                Bg Color
+              </label>
+              <input
+                type="color"
+                value={customSettings.bgColor}
+                onChange={(e) =>
+                  setCustomSettings({
+                    ...customSettings,
+                    bgColor: e.target.value,
+                  })
+                }
+              />
+            </div>
+            <div className="d-flex align-center justify-between gap-10 pb-10">
+              <label style={{ color: customSettings.fontColor }}>
+                Bg Task Color
+              </label>
+              <input
+                type="color"
+                value={customSettings.bgTaskColor}
+                onChange={(e) =>
+                  setCustomSettings({
+                    ...customSettings,
+                    bgTaskColor: e.target.value,
+                  })
+                }
+              />
+            </div>
+            <div className="d-flex align-center justify-between gap-10 pb-10">
+              <label style={{ color: customSettings.fontColor }}>
+                Font Color
+              </label>
+              <input
+                type="color"
+                value={customSettings.fontColor}
+                onChange={(e) =>
+                  setCustomSettings({
+                    ...customSettings,
+                    fontColor: e.target.value,
+                  })
+                }
+              />
+            </div>
+            <div className="d-flex align-center justify-between gap-10 pb-10">
+              <label style={{ color: customSettings.fontColor }}>
+                Input Bg Color
+              </label>
+              <input
+                type="color"
+                value={customSettings.inputBgColor}
+                onChange={(e) =>
+                  setCustomSettings({
+                    ...customSettings,
+                    inputBgColor: e.target.value,
+                  })
+                }
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -182,7 +229,7 @@ export default function App() {
               value={draftTitle}
               onChange={(e) => setDraftTitle(e.target.value)}
             />
-            <button onClick={() => saveTitle()}>Save</button>
+            <button onClick={() => saveTitle(editingTaskIndex!)}>Save</button>
           </div>
         </Popup>
       )}
@@ -198,7 +245,9 @@ export default function App() {
               value={draftTaskText}
               onChange={(e) => setDraftTaskText(e.target.value)}
             />
-            <button onClick={() => saveTask(isEditingTask)}>Save</button>
+            <button onClick={() => saveTask(isEditingTask, editingTaskIndex!)}>
+              Save
+            </button>
           </div>
         </Popup>
       )}
