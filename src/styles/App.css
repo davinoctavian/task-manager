@@ -14,17 +14,20 @@
   overflow: auto;
 }
 .add-button {
-  margin-top: 20px;
+  margin-top: 15px;
   border: 1px solid #aaa;
   padding: 8px 12px;
   background: #0077cc;
   color: white;
   border-radius: 4px;
   cursor: pointer;
+  position: fixed;
+  z-index: 2;
 }
 .content-container {
   display: flex;
   align-items: flex-start;
+  margin-top: 40px;
 }
 .content-container .tasklist-content {
   display: grid;
@@ -32,7 +35,7 @@
 }
 .content {
   position: relative;
-  margin: 40px 20px;
+  margin: 20px;
   padding: 20px;
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -51,7 +54,7 @@
   border-radius: 50%;
 }
 .content-custom {
-  margin: 40px 20px;
+  margin: 20px;
   padding: 15px;
   border: 1px dashed #ccc;
   border-radius: 6px;

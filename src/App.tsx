@@ -4,6 +4,8 @@ import "./styles/App.css";
 import { useState } from "react";
 import Popup from "./utils/Popup";
 import { getContrastColor } from "./utils/colorUtils";
+import { DragDropContext } from "@hello-pangea/dnd";
+import type { DropResult } from "@hello-pangea/dnd";
 
 interface Task {
   id: number;
@@ -44,6 +46,39 @@ export default function App() {
   const [isEditingTask, setIsEditingTask] = useState<number | null>(null);
   const [draftTaskText, setDraftTaskText] = useState("");
   const [editingTaskIndex, setEditingTaskIndex] = useState<number | null>(null);
+
+  const handleDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
+
+    const sourceListIndex = parseInt(
+      result.source.droppableId.split("-")[1],
+      10,
+    );
+    const destListIndex = parseInt(
+      result.destination.droppableId.split("-")[1],
+      10,
+    );
+
+    const newTaskContent = [...taskContent];
+
+    // same list reorder
+    if (sourceListIndex === destListIndex) {
+      const tasks = Array.from(newTaskContent[sourceListIndex].tasks);
+      const [moved] = tasks.splice(result.source.index, 1);
+      tasks.splice(result.destination.index, 0, moved);
+      newTaskContent[sourceListIndex].tasks = tasks;
+    } else {
+      // cross-list move
+      const sourceTasks = Array.from(newTaskContent[sourceListIndex].tasks);
+      const [moved] = sourceTasks.splice(result.source.index, 1);
+      const destTasks = Array.from(newTaskContent[destListIndex].tasks);
+      destTasks.splice(result.destination.index, 0, moved);
+      newTaskContent[sourceListIndex].tasks = sourceTasks;
+      newTaskContent[destListIndex].tasks = destTasks;
+    }
+
+    setTaskContent(newTaskContent);
+  };
 
   const addTask = (text: string, index: number) => {
     const newTaskContent = [...taskContent];
@@ -128,9 +163,9 @@ export default function App() {
         New Task List
       </button>
       <div className="content-container">
-        <div className="tasklist-content">
-          {taskContent &&
-            taskContent.map((content, index) => (
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <div className="tasklist-content">
+            {taskContent.map((content, index) => (
               <TaskContent
                 key={index}
                 openPopupTitle={() => openPopupTitle(index)}
@@ -146,9 +181,12 @@ export default function App() {
                 customSettings={customSettings}
                 tasks={content.tasks}
                 title={content.title}
+                listIndex={index}
               />
             ))}
-        </div>
+          </div>
+        </DragDropContext>
+
         <div
           className="content-custom"
           style={{ backgroundColor: customSettings.bgTaskColor }}

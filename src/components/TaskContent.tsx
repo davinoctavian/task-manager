@@ -11,6 +11,7 @@ interface TaskContentProps {
   customSettings: any;
   tasks: any[];
   title: string;
+  listIndex?: number;
 }
 
 export default function TaskContent({
@@ -23,6 +24,7 @@ export default function TaskContent({
   customSettings,
   tasks,
   title,
+  listIndex,
 }: TaskContentProps) {
   return (
     <div
@@ -54,6 +56,7 @@ export default function TaskContent({
         onCheck={checkTask}
         onDelete={deleteTask}
         onEdit={editTask}
+        listIndex={listIndex}
         fontColor={customSettings.fontColor}
         inputBgColor={customSettings.inputBgColor}
       />

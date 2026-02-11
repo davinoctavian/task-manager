@@ -18,7 +18,7 @@ export default function TaskItem({
   inputBgColor,
 }: TaskItemProps) {
   return (
-    <li
+    <div
       className={`task-item ${completed ? "completed" : ""}`}
       style={{ backgroundColor: inputBgColor }}
     >
@@ -32,6 +32,6 @@ export default function TaskItem({
         alt="Delete"
         onClick={onDelete}
       />
-    </li>
+    </div>
   );
 }
