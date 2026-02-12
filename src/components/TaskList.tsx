@@ -28,19 +28,6 @@ export default function TaskList({
   listIndex,
 }: TaskListProps) {
   return (
-    // <ul className="task-list" style={{ color: fontColor }}>
-    //   {tasks.map((t) => (
-    //     <TaskItem
-    //       key={t.id}
-    //       task={t.text}
-    //       completed={t.completed}
-    //       onCheck={() => onCheck(t.id)}
-    //       onEdit={() => onEdit(t.id)}
-    //       onDelete={() => onDelete(t.id)}
-    //       inputBgColor={inputBgColor}
-    //     />
-    //   ))}
-    // </ul>
     <Droppable droppableId={`list-${listIndex}`}>
       {(provided) => (
         <ul

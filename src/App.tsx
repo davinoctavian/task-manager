@@ -23,6 +23,8 @@ interface Settings {
   bgTaskColor: string;
   fontColor: string;
   inputBgColor: string;
+  bgImage?: string;
+  bgImageName?: string;
 }
 
 const defaultSettings = {
@@ -148,7 +150,17 @@ export default function App() {
   const buttonColor = getContrastColor(customSettings.fontColor);
 
   return (
-    <div className="app" style={{ backgroundColor: customSettings.bgColor }}>
+    <div
+      className="app"
+      style={{
+        backgroundColor: customSettings.bgColor,
+        backgroundImage: customSettings.bgImage
+          ? `url(${customSettings.bgImage})`
+          : undefined,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
       <button
         className="add-button"
         style={{
@@ -195,6 +207,50 @@ export default function App() {
             Custom Styled Section
           </h2>
           <div className="custom-setting">
+            <div className="d-flex align-center justify-between gap-10 pb-10">
+              <label style={{ color: customSettings.fontColor }}>
+                Bg Image
+              </label>
+
+              {customSettings.bgImage ? (
+                <div className="file-info">
+                  <span style={{ color: customSettings.fontColor }}>
+                    {customSettings.bgImageName}
+                  </span>
+                  <img
+                    className="remove-image"
+                    src="/icon-delete.png"
+                    alt="remove"
+                    onClick={() =>
+                      setCustomSettings({
+                        ...customSettings,
+                        bgImage: undefined,
+                        bgImageName: undefined,
+                      })
+                    }
+                  />
+                </div>
+              ) : (
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onload = () => {
+                        setCustomSettings({
+                          ...customSettings,
+                          bgImage: reader.result as string, // store base64 string
+                          bgImageName: file.name,
+                        });
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                />
+              )}
+            </div>
             <div className="d-flex align-center justify-between gap-10 pb-10">
               <label style={{ color: customSettings.fontColor }}>
                 Bg Color
