@@ -214,7 +214,11 @@ export default function App() {
 
               {customSettings.bgImage ? (
                 <div className="file-info">
-                  <span style={{ color: customSettings.fontColor }}>
+                  <span
+                    className="file-name tooltip"
+                    style={{ color: customSettings.fontColor }}
+                    data-fullname={customSettings.bgImageName}
+                  >
                     {customSettings.bgImageName}
                   </span>
                   <img
@@ -231,24 +235,35 @@ export default function App() {
                   />
                 </div>
               ) : (
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      const reader = new FileReader();
-                      reader.onload = () => {
-                        setCustomSettings({
-                          ...customSettings,
-                          bgImage: reader.result as string, // store base64 string
-                          bgImageName: file.name,
-                        });
-                      };
-                      reader.readAsDataURL(file);
-                    }
+                <label
+                  className="file-upload"
+                  style={{
+                    color: customSettings.fontColor,
+                    backgroundColor: buttonColor,
+                    borderColor: customSettings.fontColor,
                   }}
-                />
+                >
+                  Choose File
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onload = () => {
+                          setCustomSettings({
+                            ...customSettings,
+                            bgImage: reader.result as string, // store base64 string
+                            bgImageName: file.name,
+                          });
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                    hidden
+                  />
+                </label>
               )}
             </div>
             <div className="d-flex align-center justify-between gap-10 pb-10">
