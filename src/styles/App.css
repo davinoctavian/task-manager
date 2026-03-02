@@ -28,6 +28,7 @@
   display: flex;
   align-items: flex-start;
   margin-top: 40px;
+  flex-wrap: wrap;
 }
 .content-container .tasklist-content {
   display: grid;
@@ -55,9 +56,9 @@
 }
 .content-custom {
   margin: 20px;
-  padding: 15px;
-  border: 1px dashed #ccc;
-  border-radius: 6px;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
   background: #fff;
 }
 h1 {
@@ -188,5 +189,17 @@ h1 {
   .content-container .tasklist-content {
     grid-template-columns: 1fr;
     width: 100%;
+    box-sizing: border-box;
+    margin: 20px 0;
+  }
+  .content-container .content {
+    width: 100%;
+    box-sizing: border-box;
+    margin: 20px 0;
+  }
+  .content-container .content-custom {
+    width: 100%;
+    box-sizing: border-box;
+    margin: 20px 0;
   }
 }
