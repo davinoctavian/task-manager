@@ -6,6 +6,12 @@ interface PopupProps {
   children: ReactNode;
 }
 
+interface PopupContentProps {
+  title: string;
+  children: ReactNode;
+  onClose: () => void;
+}
+
 export default function Popup({ isOpen, onClose, children }: PopupProps) {
   if (!isOpen) return null;
 
@@ -18,5 +24,14 @@ export default function Popup({ isOpen, onClose, children }: PopupProps) {
         {children}
       </div>
     </div>
+  );
+}
+
+export function PopupContent({ title, children, onClose }: PopupContentProps) {
+  return (
+    <Popup isOpen={true} onClose={onClose}>
+      <h2>{title}</h2>
+      <div className="popup-body">{children}</div>
+    </Popup>
   );
 }

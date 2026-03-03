@@ -2,7 +2,7 @@ import { useLocalStorage } from "./hooks/useLocalStorage";
 import TaskContent from "./components/TaskContent";
 import "./styles/App.css";
 import { useState } from "react";
-import Popup from "./utils/Popup";
+import { PopupContent } from "./utils/Popup";
 import { getContrastColor } from "./utils/colorUtils";
 import { DragDropContext } from "@hello-pangea/dnd";
 import type { DropResult } from "@hello-pangea/dnd";
@@ -45,9 +45,12 @@ export default function App() {
   );
   const [draftTitle, setDraftTitle] = useState("");
   const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [isDeleteTitle, setIsDeleteTitle] = useState<number | null>(null);
   const [isEditingTask, setIsEditingTask] = useState<number | null>(null);
   const [draftTaskText, setDraftTaskText] = useState("");
   const [editingTaskIndex, setEditingTaskIndex] = useState<number | null>(null);
+  const [isDeleteTask, setIsDeleteTask] = useState<number | null>(null);
+  const [deleteTaskIndex, setDeleteTaskIndex] = useState<number | null>(null);
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
@@ -126,6 +129,11 @@ export default function App() {
   };
 
   const deleteTask = (id: number, index: number) => {
+    setIsDeleteTask(id);
+    setDeleteTaskIndex(index);
+  };
+
+  const confirmDeleteTask = (id: number, index: number) => {
     setTaskContent((prev) => {
       const newTaskContent = [...prev];
       newTaskContent[index].tasks = newTaskContent[index].tasks.filter(
@@ -133,6 +141,8 @@ export default function App() {
       );
       return newTaskContent;
     });
+    setIsDeleteTask(null);
+    setDeleteTaskIndex(null);
   };
 
   const openPopupTitle = (index: number) => {
@@ -146,6 +156,13 @@ export default function App() {
     newTaskContent[index].title = draftTitle;
     setTaskContent(newTaskContent);
     setIsEditingTitle(false);
+  };
+
+  const deleteTitle = (index: number) => {
+    const newTaskContent = [...taskContent];
+    newTaskContent.splice(index, 1);
+    setTaskContent(newTaskContent);
+    setIsDeleteTitle(null);
   };
   const buttonColor = getContrastColor(customSettings.fontColor);
 
@@ -186,9 +203,7 @@ export default function App() {
                 editTask={(id) => editTask(id, index)}
                 deleteTask={(id) => deleteTask(id, index)}
                 deleteTaskContent={() => {
-                  const newTaskContent = [...taskContent];
-                  newTaskContent.splice(index, 1);
-                  setTaskContent(newTaskContent);
+                  setIsDeleteTitle(index);
                 }}
                 customSettings={customSettings}
                 tasks={content.tasks}
@@ -330,35 +345,64 @@ export default function App() {
         </div>
       </div>
       {isEditingTitle && (
-        <Popup isOpen={isEditingTitle} onClose={() => setIsEditingTitle(false)}>
-          <h2>Edit Title</h2>
-          <div className="popup-body">
-            <input
-              type="text"
-              value={draftTitle}
-              onChange={(e) => setDraftTitle(e.target.value)}
-            />
-            <button onClick={() => saveTitle(editingTaskIndex!)}>Save</button>
-          </div>
-        </Popup>
+        <PopupContent
+          title="Edit Title"
+          onClose={() => setIsEditingTitle(false)}
+        >
+          <input
+            type="text"
+            value={draftTitle}
+            onChange={(e) => setDraftTitle(e.target.value)}
+          />
+          <button onClick={() => saveTitle(editingTaskIndex!)}>Save</button>
+        </PopupContent>
+      )}
+      {isDeleteTitle !== null && (
+        <PopupContent
+          title="Delete Title"
+          onClose={() => setIsDeleteTitle(null)}
+        >
+          <p>
+            Are you sure you want to delete{" "}
+            <strong>{taskContent[isDeleteTitle!].title}</strong>?
+          </p>
+          <button onClick={() => deleteTitle(isDeleteTitle!)}>Confirm</button>
+        </PopupContent>
       )}
       {isEditingTask !== null && (
-        <Popup
-          isOpen={isEditingTask !== null}
-          onClose={() => setIsEditingTask(null)}
+        <PopupContent title="Edit Task" onClose={() => setIsEditingTask(null)}>
+          <input
+            type="text"
+            value={draftTaskText}
+            onChange={(e) => setDraftTaskText(e.target.value)}
+          />
+          <button onClick={() => saveTask(isEditingTask, editingTaskIndex!)}>
+            Save
+          </button>
+        </PopupContent>
+      )}
+      {isDeleteTask !== null && (
+        <PopupContent
+          title="Confirm Delete"
+          onClose={() => setIsDeleteTask(null)}
         >
-          <h2>Edit Task</h2>
-          <div className="popup-body">
-            <input
-              type="text"
-              value={draftTaskText}
-              onChange={(e) => setDraftTaskText(e.target.value)}
-            />
-            <button onClick={() => saveTask(isEditingTask, editingTaskIndex!)}>
-              Save
-            </button>
-          </div>
-        </Popup>
+          <p>
+            Are you sure you want to delete{" "}
+            <strong>
+              {
+                taskContent[deleteTaskIndex!].tasks.find(
+                  (t) => t.id === isDeleteTask,
+                )?.text
+              }
+            </strong>
+            ?
+          </p>
+          <button
+            onClick={() => confirmDeleteTask(isDeleteTask!, deleteTaskIndex!)}
+          >
+            Confirm
+          </button>
+        </PopupContent>
       )}
     </div>
   );
